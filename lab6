@@ -1,0 +1,137 @@
+ToolboxDriver.java
+package KI.Tarnavskyi.Lab6;
+
+/**
+ * Клас для тестування параметризованої коробки для інструментів.
+ */
+public class ToolboxDriver {
+
+    public static void main(String[] args) {
+        Toolbox<Integer> numberBox = new Toolbox<>();
+        Toolbox<String> stringBox = new Toolbox<>();
+
+        // Додавання чисел до коробки
+        numberBox.addItem(10);
+        numberBox.addItem(25);
+        numberBox.addItem(3);
+        numberBox.addItem(17);
+
+        // Додавання рядків до коробки
+        stringBox.addItem("Hammer");
+        stringBox.addItem("Screwdriver");
+        stringBox.addItem("Wrench");
+
+        // Пошук мінімального елемента у коробці чисел
+        System.out.println("Мінімальне число: " + numberBox.findMinItem());
+
+        // Перевірка наявності елемента в коробці рядків
+        System.out.println("Чи є 'Screwdriver' у коробці? " + stringBox.containsItem("Screwdriver"));
+
+        // Очищення коробки з рядками
+        stringBox.clear();
+        System.out.println("Кількість елементів у коробці після очищення: " + stringBox.getItemCount());
+
+        numberBox.addItem(12);
+
+        System.out.println("Оновлений список чисел: ");
+        System.out.println(numberBox);
+    }
+}
+
+Toolbox.java
+package KI.Tarnavskyi.Lab6;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+/**
+ * Клас, що представляє параметризовану коробку для інструментів.
+ * @param <T> Тип об'єктів, що зберігаються в коробці.
+ */
+public class Toolbox<T extends Comparable<T>> {
+    private List<T> items;
+
+    /**
+     * Конструктор, що ініціалізує порожню коробку для інструментів.
+     */
+    public Toolbox() {
+        this.items = new ArrayList<>();
+    }
+
+    /**
+     * Додає елемент до коробки.
+     * @param item Елемент, що додається.
+     */
+    public void addItem(T item) {
+        items.add(item);
+    }
+
+    /**
+     * Видаляє елемент з коробки.
+     * @param item Елемент, що видаляється.
+     */
+    public void removeItem(T item) {
+        if(!items.remove(item)) {
+            throw new NoSuchElementException("Елемент не знайдено!");
+        }
+    }
+
+    /**
+     * Перевіряє наявність елемента в коробці.
+     * @param item Елемент для перевірки.
+     * @return true якщо елемент є в коробці, інакше false.
+     */
+    public boolean containsItem(T item) {
+        return items.contains(item);
+    }
+
+    /**
+     * Очищає всі елементи з коробки.
+     */
+    public void clear() {
+        items.clear();
+    }
+
+    /**
+     * Повертає кількість елементів у коробці.
+     * @return Кількість елементів.
+     */
+    public int getItemCount() {
+        return items.size();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+
+        for (int i = 0; i < items.size(); i++) {
+            sb.append(items.get(i));
+            if(i != items.size()-1) {
+                sb.append(", ");
+            }
+        }
+
+        sb.append(']');
+        return sb.toString();
+    }
+
+    /**
+     * Повертає мінімальний елемент у коробці.
+     * @return Мінімальний елемент.
+     */
+    public T findMinItem() {
+        if (items.isEmpty()) {
+            System.out.println("Коробка порожня.");
+            return null;
+        }
+        T minItem = items.get(0);
+        for (T item : items) {
+            if (item.compareTo(minItem) < 0) {
+                minItem = item;
+            }
+        }
+        return minItem;
+    }
+}
