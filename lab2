@@ -1,0 +1,490 @@
+AlpinistEquipmentDriver.java
+
+package KI.Tarnavskyi.Lab2;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Клас AlpinistEquipmentDriver демонструє роботу з класом AlpinistEquipment.
+ */
+public class AlpinistEquipmentDriver {
+    /**
+     * Головний метод.
+     *
+     * @param args аргументи командного рядка (не використовуються).
+     */
+    public static void main(String[] args) {
+        List<String> equipment = new ArrayList<>();
+        equipment.add("Пояс страхувальний");
+        equipment.add("Зажиим");
+        equipment.add("Пояси");
+
+
+        try {
+            AlpinistEquipment alpinistEquipment = new AlpinistEquipment(equipment);
+            alpinistEquipment.addEquipment("Рукавиці");
+            alpinistEquipment.removeEquipment("Зажим");
+            alpinistEquipment.getEquipmentList();
+            alpinistEquipment.changeBackpackCapacity(10);
+            alpinistEquipment.changeRopeLength(100);
+            alpinistEquipment.hasEquipment("Зажим");
+            alpinistEquipment.getTotalWeight();
+            alpinistEquipment.isReadyForExpedition();
+            alpinistEquipment.simulateRandomDamage();
+            alpinistEquipment.calculateMaxClimbingHeight();
+
+            alpinistEquipment.closeLogger();
+        } catch (IOException e) {
+            // Обробка помилок, що виникають під час запису в файл
+            throw new RuntimeException("Сталася помилка при записі в файл: " + e.getMessage());
+        }
+    }
+}
+
+AlpinistEquipment.java
+
+package KI.Tarnavskyi.Lab2;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Клас AlpinistEquipment представляє спорядження альпініста та містить методи для управління ним.
+ */
+public class AlpinistEquipment {
+    private Backpack backpack;
+    private Rope rope;
+    private Helmet helmet;
+    private Logger logger;
+    private List<String> equipment;
+
+    /**
+     * Конструктор для створення об'єкта спорядження альпініста з базовими компонентами.
+     *
+     * @param equipment початковий список спорядження
+     * @throws IOException якщо виникають помилки під час ініціалізації логера
+     */
+    public AlpinistEquipment(List<String> equipment) throws IOException {
+        this.equipment = equipment;
+        this.backpack = new Backpack();
+        this.rope = new Rope();
+        this.helmet = new Helmet();
+
+        this.logger = new Logger("alpinist_equipment_log.txt");
+        logger.log(String.format("Спорядження альпініста %s створена.", this.toString()));
+    }
+
+    /**
+     * Конструктор з параметрами для налаштування спорядження альпініста.
+     *
+     * @param backpack об'єкт рюкзака
+     * @param rope об'єкт мотузки
+     * @param helmet об'єкт шолома
+     * @param equipment початковий список спорядження
+     * @throws IOException якщо виникають помилки під час ініціалізації логера
+     */
+    public AlpinistEquipment(Backpack backpack, Rope rope, Helmet helmet, List<String> equipment) throws IOException {
+        this.backpack = backpack;
+        this.rope = rope;
+        this.helmet = helmet;
+        this.equipment = equipment;
+
+        this.logger = new Logger("alpinist_equipment_log.txt");
+        logger.log(String.format("Спорядження альпініста %s створена.", this.toString()));
+    }
+
+    /**
+     * Додає предмет спорядження до списку.
+     *
+     * @param item назва спорядження
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public void addEquipment(String item) throws IOException {
+        equipment.add(item);
+        logger.log(String.format("Добавлено спорядження %s", item));
+        System.out.printf("Добавлено спорядження %s\n", item);
+    }
+
+    /**
+     * Видаляє предмет спорядження зі списку.
+     *
+     * @param item назва спорядження
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public void removeEquipment(String item) throws IOException {
+        equipment.remove(item);
+        logger.log(String.format("Видалено спорядження %s", item));
+        System.out.printf("Видалено спорядження %s\n", item);
+    }
+
+    /**
+     * Повертає список всього спорядження.
+     *
+     * @return список спорядження
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public List<String> getEquipmentList() throws IOException {
+        logger.log(String.format("Показати спорядження %s", equipment));
+        System.out.printf("Показати спорядження %s\n", equipment);
+        return equipment;
+    }
+
+    /**
+     * Змінює місткість рюкзака.
+     *
+     * @param capacity нова місткість
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public void changeBackpackCapacity(int capacity) throws IOException {
+        backpack.setCapacity(capacity);
+        logger.log(String.format("Змінити місткість рюкзака %s", capacity));
+        System.out.printf("Змінити місткість рюкзака %s\n", capacity);
+    }
+
+    /**
+     * Змінює довжину мотузки.
+     *
+     * @param length нова довжина
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public void changeRopeLength(int length) throws IOException {
+        rope.setLength(length);
+        logger.log(String.format("Змінити довжину мотузки %s", length));
+        System.out.printf("Змінити довжину мотузки %s\n", length);
+    }
+
+    /**
+     * Перевіряє, чи є певний предмет спорядження в списку.
+     *
+     * @param item назва спорядження
+     * @return true, якщо спорядження є в списку, інакше false
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public boolean hasEquipment(String item) throws IOException {
+        boolean result = equipment.contains(item);
+        logger.log(String.format("Перевірка на наявність предмету: %s. Результат: %s", item, result));
+        System.out.printf("Перевірка на наявність предмету: %s. Результат: %s\n", item, result);
+        return result;
+    }
+
+    /**
+     * Повертає загальну вагу спорядження.
+     *
+     * @return загальна вага спорядження
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public double getTotalWeight() throws IOException {
+        double totalWeight = backpack.getWeight() + rope.getWeight() + helmet.getWeight();
+        logger.log(String.format("Загальна вага спорядження: %s", totalWeight));
+        System.out.printf("Загальна вага спорядження: %s\n", totalWeight);
+        return totalWeight;
+    }
+
+    /**
+     * Перевіряє, чи готове спорядження до експедиції.
+     *
+     * @return true, якщо спорядження готове, інакше false
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public boolean isReadyForExpedition() throws IOException {
+        boolean isReady = equipment.size() >= 5 && hasEquipment("Crampon") && hasEquipment("Ice axe");
+        logger.log(String.format("Перевірка спорядження до експедиції. Результат: %s", isReady));
+        System.out.printf("Перевірка спорядження до експедиції. Результат: %s\n", isReady);
+        return isReady;
+    }
+
+    /**
+     * Симулює випадкове пошкодження спорядження під час експедиції.
+     *
+     * @return назва пошкодженого предмету або null, якщо пошкодження не сталося
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public String simulateRandomDamage() throws IOException {
+        if (equipment.isEmpty()) {
+            logger.log("Спроба симуляції пошкодження: спорядження порожнє");
+            System.out.println("Спорядження порожнє, нема чого пошкоджувати!");
+            return null;
+        }
+
+        Random random = new Random();
+        if (random.nextInt(10) < 3) {
+            int index = random.nextInt(equipment.size());
+            String damagedItem = equipment.get(index);
+            logger.log(String.format("Симуляція пошкодження: пошкоджено предмет '%s'", damagedItem));
+            System.out.printf("Ох ні! Предмет '%s' був пошкоджений під час експедиції!\n", damagedItem);
+            return damagedItem;
+        } else {
+            logger.log("Симуляція пошкодження: пошкодження не сталося");
+            System.out.println("На щастя, все спорядження залишилося цілим під час цієї експедиції.");
+            return null;
+        }
+    }
+
+    /**
+     * Розраховує максимальну висоту, на яку можна піднятися з поточним спорядженням.
+     *
+     * @return максимальна висота в метрах
+     * @throws IOException якщо виникають помилки при записі в лог
+     */
+    public int calculateMaxClimbingHeight() throws IOException {
+        int baseHeight = 1000;
+        int additionalHeight = 0;
+
+        for (String item : equipment) {
+            switch (item.toLowerCase()) {
+                case "crampon":
+                    additionalHeight += 500;
+                    break;
+                case "ice axe":
+                    additionalHeight += 300;
+                    break;
+                case "oxygen tank":
+                    additionalHeight += 1000;
+                    break;
+                default:
+                    additionalHeight += 50;
+            }
+        }
+
+        int maxHeight = baseHeight + additionalHeight;
+        logger.log(String.format("Розрахунок максимальної висоти підйому: %d метрів", maxHeight));
+        System.out.printf("З поточним спорядженням ви можете піднятися на висоту до %d метрів!\n", maxHeight);
+        return maxHeight;
+    }
+
+    /**
+     * Закриває логер для збереження даних у файл.
+     *
+     * @throws IOException якщо виникає помилка під час закриття логера
+     */
+    public void closeLogger() throws IOException {
+        logger.close();
+    }
+}
+
+Backpack.java
+
+package KI.Tarnavskyi.Lab2;
+
+/**
+ * Клас Backpack представляє рюкзак альпініста з місткістю і вагою.
+ */
+public class Backpack {
+    private int capacity; // Місткість рюкзака в літрах
+    private double weight; // Вага рюкзака в кілограмах
+
+    /**
+     * Конструктор без параметрів, створює рюкзак з місткістю 50 літрів і вагою 2.0 кг.
+     */
+    public Backpack() {
+        this.capacity = 50;
+        this.weight = 2.0;
+    }
+
+    /**
+     * Конструктор, який дозволяє встановити місткість рюкзака.
+     *
+     * @param capacity місткість рюкзака в літрах
+     */
+    public Backpack(int capacity) {
+        this.capacity = capacity;
+        this.weight = 2.0;
+    }
+
+    /**
+     * Встановлює нову місткість рюкзака.
+     *
+     * @param capacity нова місткість рюкзака в літрах
+     */
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    /**
+     * Повертає вагу рюкзака.
+     *
+     * @return вага рюкзака в кілограмах
+     */
+    public double getWeight() {
+        return weight;
+    }
+
+    /**
+     * Повертає місткість рюкзака.
+     *
+     * @return місткість рюкзака в літрах
+     */
+    public int getCapacity() {
+        return capacity;
+    }
+}
+
+Rope.java
+
+package KI.Tarnavskyi.Lab2;
+
+/**
+ * Клас Rope представляє мотузку альпініста з довжиною та вагою.
+ */
+public class Rope {
+    private int length; // Довжина мотузки в метрах
+    private double weight; // Вага мотузки в кілограмах
+
+    /**
+     * Конструктор без параметрів, створює мотузку довжиною 50 метрів та вагою 3.5 кг.
+     */
+    public Rope() {
+        this.length = 50;
+        this.weight = 3.5;
+    }
+
+    /**
+     * Конструктор, який дозволяє встановити довжину мотузки.
+     *
+     * @param length довжина мотузки в метрах
+     */
+    public Rope(int length) {
+        this.length = length;
+        this.weight = length * 0.07;
+    }
+
+    /**
+     * Встановлює нову довжину мотузки і автоматично обчислює вагу.
+     *
+     * @param length нова довжина мотузки в метрах
+     */
+    public void setLength(int length) {
+        this.length = length;
+        this.weight = length * 0.07;
+    }
+
+    /**
+     * Повертає вагу мотузки.
+     *
+     * @return вага мотузки в кілограмах
+     */
+    public double getWeight() {
+        return weight;
+    }
+
+    /**
+     * Повертає довжину мотузки.
+     *
+     * @return довжина мотузки в метрах
+     */
+    public int getLength() {
+        return length;
+    }
+}
+
+Helmet.java
+
+package KI.Tarnavskyi.Lab2;
+
+/**
+ * Клас Helmet представляє каску альпініста з розміром і вагою.
+ */
+public class Helmet {
+    private String size; // Розмір каски
+    private double weight; // Вага каски в кілограмах
+
+    /**
+     * Конструктор без параметрів, створює каску з розміром M і вагою 0.3 кг.
+     */
+    public Helmet() {
+        this.size = "M";
+        this.weight = 0.3;
+    }
+
+    /**
+     * Конструктор, який дозволяє встановити розмір каски.
+     *
+     * @param size розмір каски
+     */
+    public Helmet(String size) {
+        this.size = size;
+        this.weight = 0.3;
+    }
+
+    /**
+     * Встановлює новий розмір каски.
+     *
+     * @param size новий розмір каски
+     */
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    /**
+     * Повертає вагу каски.
+     *
+     * @return вага каски в кілограмах
+     */
+    public double getWeight() {
+        return weight;
+    }
+
+    /**
+     * Повертає розмір каски.
+     *
+     * @return розмір каски
+     */
+    public String getSize() {
+        return size;
+    }
+}
+
+Logger.java
+
+Package KI.Tarnavskyi.Lab2;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+/**
+ * Клас Logger забезпечує логування повідомлень у файл.
+ * Використовується для запису дій та подій, що відбуваються в програмі.
+ */
+public class Logger {
+    private FileWriter fileWriter;
+
+    /**
+     * Конструктор створює об'єкт Logger для запису повідомлень у вказаний файл.
+     *
+     * @param fileName ім'я файлу для запису логів.
+     * @throws IOException якщо виникає помилка при створенні або відкритті файлу.
+     */
+    public Logger(String fileName) throws IOException {
+        fileWriter = new FileWriter(fileName, true);
+    }
+
+    /**
+     * Метод записує повідомлення у файл логу.
+     *
+     * @param message повідомлення, яке потрібно записати у файл.
+     * @throws IOException якщо виникає помилка при записі у файл.
+     */
+    public void log(String message) throws IOException {
+        if (fileWriter != null) {
+            fileWriter.write(message + "\n");
+            fileWriter.flush();
+        }
+    }
+
+    /**
+     * Метод закриває файл логу, звільняючи всі ресурси, пов'язані з ним.
+     * У разі виникнення помилки при закритті, повідомлення про помилку буде виведено в консоль.
+     */
+    public void close() {
+        if (fileWriter != null) {
+            try {
+                fileWriter.close();
+            } catch (IOException e) {
+                System.err.println("Виникла помилка при закриванні файла: " + e.getMessage());
+            }
+        }
+    }
+}
