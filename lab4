@@ -1,0 +1,100 @@
+CalcException.java
+package KI.Tarnavskyi.Lab4;
+
+/**
+ * Class <code>CalcException</code> more precises ArithmeticException
+ * @version 1.0
+ */
+public class CalcException extends ArithmeticException
+{
+    public CalcException() {}
+    public CalcException(String cause) {
+        super(cause);
+    }
+}
+
+Function.java
+package KI.Tarnavskyi.Lab4;
+
+/**
+ * Class <code>Functions</code> implements method for sin(x-9)/(x-cos(2x)) expression
+ * calculation
+ * @version 1.0
+ */
+
+public class Function {
+    /**
+    * Method calculates the sin(x-9)/(x-cos(2x)) expression*
+    * @param x Angle in degrees
+    * @throw CalcException
+    * @return result
+    */
+    public static double calculate(double x) throws CalcException {
+        double y;
+        double rad = x * Math.PI / 180.0;
+
+        try {
+            y = Math.sin(rad-9) / (rad - Math.cos(2*rad));
+
+            // Якщо результат не є числом, то генеруємо виключення
+            if (Double.isNaN(y) || y == Double.NEGATIVE_INFINITY || y == Double.POSITIVE_INFINITY)
+                throw new ArithmeticException();
+        }
+        // створимо виключення вищого рівня з поясненням причини
+        // виникнення помилки
+        catch (ArithmeticException ex) {
+            System.out.println(ex.getMessage());
+            throw new CalcException();
+        }
+
+        return y;
+    }
+}
+
+FunctionDriver.java
+package KI.Tarnavskyi.Lab4;
+
+import java.util.Scanner;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+/**
+ * Class <code>Driver</code> Implements driver for Function class
+ * @version 1.0
+ */
+public class FunctionDriver {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        try {
+            PrintWriter fout = new PrintWriter("MyFile.txt");
+
+            try {
+                Scanner in = new Scanner(System.in);
+                System.out.print("Enter X: ");
+                double x = in.nextDouble();
+
+                double result = Function.calculate(x);
+
+                fout.println("Result of y = sin(x-9)/(x-cos(2x)) when х = " + x + ": " + result);
+                System.out.println("Result of y = sin(x-9)/(x-cos(2x)) when х = " + x + ": " + result);
+
+            }
+            // Блок перехоплює помилки обчислень виразу
+            catch (CalcException e) {
+                System.out.print(e.getMessage());
+            }
+            // Цей блок виконається за будь-яких обставин
+            finally {
+                fout.flush();
+                fout.close();
+            }
+        }
+        catch (IOException e) {
+            // Блок перехоплює помилки роботи з файлом навіть якщо вони
+            // виникли у блоці finally
+            System.out.print("File opening error");
+        }
+    }
+}
