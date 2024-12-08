@@ -1,0 +1,195 @@
+ClimbingGear.py
+class ClimbingGear:
+    """
+    Клас ClimbingGear представляє базове спорядження для альпініста.
+    """
+
+    def __init__(self, brand, max_load, item_count):
+        """
+        Ініціалізує об'єкт базового альпіністського спорядження.
+
+        :param brand: Бренд спорядження.
+        :param max_load: Максимальна допустима вага спорядження (кг).
+        :param item_count: Кількість предметів у комплекті.
+        """
+        self.brand = brand
+        self.max_load = max_load  # максимальне навантаження в кг
+        self.item_count = item_count  # кількість предметів
+        self.current_load = 0  # поточне навантаження
+        self.is_in_use = False  # спорядження не використовується
+
+    def add_item(self, weight):
+        """
+        Додає предмет до спорядження.
+
+        :param weight: Вага предмета, який додається (кг).
+        :return: True, якщо предмет додано, False - якщо перевищено вагу.
+        """
+        if self.current_load + weight > self.max_load:
+            print("Перевищення допустимого навантаження!")
+            return False
+        self.current_load += weight
+        print(f"Предмет вагою {weight} кг додано.")
+        return True
+
+    def remove_item(self, weight):
+        """
+        Видаляє предмет зі спорядження.
+
+        :param weight: Вага предмета, який видаляється (кг).
+        """
+        if self.current_load >= weight:
+            self.current_load -= weight
+            print(f"Предмет вагою {weight} кг видалено.")
+        else:
+            print("Недостатньо ваги, щоб видалити цей предмет!")
+
+    def use(self):
+        """
+        Встановлює статус спорядження як "у використанні".
+        """
+        if self.current_load > 0:
+            self.is_in_use = True
+            print("Спорядження тепер використовується.")
+        else:
+            print("Спорядження порожнє! Неможливо використати.")
+
+    def stop_use(self):
+        """
+        Встановлює статус спорядження як "не використовується".
+        """
+        self.is_in_use = False
+        print("Спорядження більше не використовується.")
+
+    def get_status(self):
+        """
+        Отримує поточний статус спорядження.
+
+        :return: Інформація про вагу, стан і кількість предметів.
+        """
+        usage_status = "у використанні" if self.is_in_use else "не використовується"
+        return f"{self.brand}: вага {self.current_load}/{self.max_load} кг, предметів: {self.item_count}, статус: {usage_status}"
+
+main.py
+from MilitaryClimbingGear import MilitaryClimbingGear
+
+if __name__ == "__main__":
+    # Створення військового альпіністського спорядження
+    gear = MilitaryClimbingGear("AlphaGear", 50, 5, 70)
+
+    # 1. Початковий стан
+    print("\n1. Початковий стан спорядження:")
+    print(gear.get_status())
+
+    # 2. Додавання предметів
+    print("\n2. Додавання предметів:")
+    gear.add_item(10)
+    gear.add_item(15)
+    print(gear.get_status())
+
+    # 3. Використання спорядження
+    print("\n3. Використання спорядження:")
+    gear.use()
+    print(gear.get_status())
+
+    # 4. Спроба увімкнення режиму 'тихий'
+    print("\n4. Увімкнення режиму 'тихий':")
+    gear.activate_stealth()
+    print(gear.get_status())
+
+    # 5. Додавання зброї
+    print("\n5. Додавання зброї:")
+    gear.attach_weapon(20)
+    print(gear.get_status())
+
+    # 6. Видалення предметів
+    print("\n6. Видалення предметів:")
+    gear.remove_item(5)
+    print(gear.get_status())
+
+    # 7. Спроба перевищення ваги
+    print("\n7. Спроба перевищення допустимого навантаження:")
+    gear.add_item(20)
+
+    # 8. Вимкнення режиму 'тихий'
+    print("\n8. Вимкнення режиму 'тихий':")
+    gear.deactivate_stealth()
+    print(gear.get_status())
+
+    # 9. Зняття спорядження з використання
+    print("\n9. Зняття спорядження з використання:")
+    gear.stop_use()
+    print(gear.get_status())
+
+    # 10. Фінальний стан
+    print("\n10. Фінальний стан спорядження:")
+    print(gear.get_status())
+
+MilitaryClimbingGear.py
+from ClimbingGear import ClimbingGear
+
+
+class MilitaryClimbingGear(ClimbingGear):
+    """
+    Клас MilitaryClimbingGear розширює функціонал базового класу ClimbingGear
+    та додає особливості для військових завдань.
+    """
+
+    def __init__(self, brand, max_load, item_count, camouflage_level):
+        """
+        Ініціалізує об'єкт військового альпіністського спорядження.
+
+        :param brand: Бренд спорядження.
+        :param max_load: Максимальна допустима вага спорядження (кг).
+        :param item_count: Кількість предметів у комплекті.
+        :param camouflage_level: Рівень маскування (0-100).
+        """
+        super().__init__(brand, max_load, item_count)
+        self.camouflage_level = camouflage_level  # рівень маскування
+        self.is_stealth_mode = False  # режим "тихий"
+
+    def activate_stealth(self):
+        """
+        Активує режим "тихий".
+        """
+        if self.camouflage_level > 50:
+            self.is_stealth_mode = True
+            print("Режим 'тихий' активовано.")
+        else:
+            print("Рівень маскування недостатній для режиму 'тихий'!")
+
+    def deactivate_stealth(self):
+        """
+        Деактивує режим "тихий".
+        """
+        self.is_stealth_mode = False
+        print("Режим 'тихий' вимкнено.")
+
+    def attach_weapon(self, weight):
+        """
+        Додає військове спорядження (зброю) до альпіністського комплекту.
+
+        :param weight: Вага зброї (кг).
+        """
+        print("Додаємо військове спорядження:")
+        self.add_item(weight)
+
+    def remove_weapon(self, weight):
+        """
+        Видаляє військове спорядження (зброю) з комплекту.
+
+        :param weight: Вага зброї (кг).
+        """
+        print("Видаляємо військове спорядження:")
+        self.remove_item(weight)
+
+    def get_status(self):
+        """
+        Отримує повний статус військового спорядження.
+
+        :return: Інформація про вагу, стан, кількість предметів і режим "тихий".
+        """
+        basic_status = super().get_status()
+        stealth_status = "активний" if self.is_stealth_mode else "не активний"
+        return f"{basic_status}, маскування: {self.camouflage_level}, режим 'тихий': {stealth_status}"
+
