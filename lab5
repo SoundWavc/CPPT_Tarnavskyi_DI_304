@@ -1,0 +1,176 @@
+Driver.java
+package KI.Tarnavskyi.Lab5;
+
+import java.util.Scanner;
+import java.io.*;
+
+/**
+ * Class <code>Driver</code> Implements driver for Function class
+ * @version 1.0
+ */
+public class Driver {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) throws FileNotFoundException, IOException
+    {
+        FunctionIO func = new FunctionIO();
+
+        try (Scanner s = new Scanner(System.in)) {
+            System.out.print("Введіть X: ");
+            double data = s.nextDouble();
+            func.calculate(data);
+        }
+
+        System.out.println("Результат обчислення: " + func.getResult());
+        func.writeResTxt("textRes.txt");
+        func.writeResBin("BinRes.bin");
+
+        func.readResBin("BinRes.bin");
+        System.out.println("Результат в бінарному файлі: " + func.getResult());
+
+        func.readResTxt("textRes.txt");
+        System.out.println("Результат в текстовому файлі: " + func.getResult());
+    }
+}
+
+
+Function.java
+package KI.Tarnavskyi.Lab5;
+
+/**
+ * Class <code>Functions</code> implements method for sin(x-9)/(x-cos(2x)) expression
+ * calculation
+ * @version 1.0
+ */
+
+public class Function {
+    /**
+    * Method calculates the sin(x-9)/(x-cos(2x)) expression*
+    * @param x Angle in degrees
+    * @throw CalcException
+    * @return result
+    */
+    public static double calculate(double x) throws CalcException {
+        double y;
+        double rad = x * Math.PI / 180.0;
+
+        try {
+            y = Math.sin(rad-9) / (rad - Math.cos(2*rad));
+
+            // Якщо результат не є числом, то генеруємо виключення
+            if (Double.isNaN(y) || y == Double.NEGATIVE_INFINITY || y == Double.POSITIVE_INFINITY)
+                throw new ArithmeticException();
+        }
+        // створимо виключення вищого рівня з поясненням причини
+        // виникнення помилки
+        catch (ArithmeticException ex) {
+            System.out.println(ex.getMessage());
+            throw new CalcException();
+        }
+
+        return y;
+    }
+}
+
+FunctionIO.java
+package KI.Tarnavskyi.Lab5;
+
+import java.io.*;
+import java.lang.*;
+import java.util.Scanner;
+
+/**
+ * Class <code>FunctionIO</code> implements method for sin(x-9)/(x-cos(2x)) expression calculation and methods for writing and reading files
+ * @version 1.0
+ */
+public class FunctionIO
+{
+    private double result;
+
+    /**
+     * Method writes txt file
+     * @param fName File's name
+     * @throws FileNotFoundException error
+     */
+    public void writeResTxt(String fName) throws FileNotFoundException
+    {
+        PrintWriter f = new PrintWriter(fName);
+        f.printf("%f ",result);
+        f.close();
+    }
+
+    /**
+     * Method read txt file
+     * @param fName File's name
+     */
+    public void readResTxt(String fName)
+    {
+        try
+        {
+            File f = new File (fName);
+            if (f.exists())
+            {
+                Scanner s = new Scanner(f);
+                result = s.nextDouble();
+                s.close();
+            }
+            else
+                throw new FileNotFoundException("File " + fName + "not found");
+        }
+        catch (FileNotFoundException ex)
+        {
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    /**
+     * Method writes bin file
+     * @param fName File's name
+     * @throws IOException error
+     */
+    public void writeResBin(String fName) throws FileNotFoundException, IOException
+    {
+        DataOutputStream f = new DataOutputStream(new FileOutputStream(fName));
+        f.writeDouble(result);
+        f.close();
+    }
+
+    /**
+     * Method reads bin file
+     * @param fName File's name
+     * @throws IOException error
+     */
+    public void readResBin(String fName) throws FileNotFoundException, IOException
+    {
+        DataInputStream f = new DataInputStream(new FileInputStream(fName));
+        result = f.readDouble();
+        f.close();
+    }
+
+    public void calculate(double x)
+    {
+        result = Function.calculate(x);
+    }
+
+    public double getResult() {
+        return result;
+    }
+}
+
+
+
+CalcException.java
+package KI.Tarnavskyi.Lab5;
+
+/**
+ * Class <code>CalcException</code> more precises ArithmeticException
+ * @version 1.0
+ */
+public class CalcException extends ArithmeticException
+{
+    public CalcException() {}
+    public CalcException(String cause) {
+        super(cause);
+    }
+}
